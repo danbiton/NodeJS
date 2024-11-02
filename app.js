@@ -55,6 +55,7 @@ app.get("/users",(req,res) => {
 //method POST
 // fs.writeFileSync("users.json",JSON.stringify(users,null,2))
 app.post("/users",(req,res) => {
+    
     usersFile = getFileJson()
     
     const newUser = {
