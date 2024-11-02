@@ -1,18 +1,7 @@
 const express = require("express")
 const app = express();
-
 app.use(express.json())
-
 const fs = require("fs")
-function getFileJson(){
-    const result = fs.readFileSync("users.json","utf8")
-    return JSON.parse(result)
-
-}
-
-
-
-//method GET
 
 const users = [
     {id:1, FirstName:"daniel",LastName:"Biton",Email:"biton123654@gmail.com"},
@@ -21,27 +10,40 @@ const users = [
     
 ]
 
+fs.writeFileSync("users.json",JSON.stringify(users,null,2))
+
+function getFileJson(){
+    const result = fs.readFileSync("users.json","utf8")
+    return JSON.parse(result)
+
+}
+
+//method GET
 
 // option with params
 //get specific user
-// app.get("/getbyID:id",(req,res) => {
-//     const user = users.find(u => u.id === parseInt(req.params.id))
-//     if(!user) res.send("the user was not found")
-//     res.send(user)    
-//         })
+let usersFile;
+app.get("/getbyID/:id",(req,res) => {
+    usersFile = getFileJson()
+    const user =  usersFile.find(u => u.id === parseInt(req.params.id))
+    if(!user) res.send("the user was not found")
+    res.send(user)    
+        })
 // //get all users
-// app.get("/api/users",(req,res) => {
-//     res.send(users)
-// })
+app.get("/users",(req,res) => {
+    usersFile = getFileJson()
+    res.send(usersFile)
+})
 
 
 
 //option b with query
 //get the users that client asked
 
-let lstFilterd;
-app.get("/api/users",(req,res) => {
-    lstFilterd = users.filter(user => {
+// let lstFilterd;
+app.get("/users",(req,res) => {
+    usersFile = getFileJson()
+    const lstFilterd = usersFile.filter(user => {
         
         return Object.entries(req.query).some(([key, value]) => user[key] == value);
     });
@@ -52,27 +54,27 @@ app.get("/api/users",(req,res) => {
 
 //method POST
 // fs.writeFileSync("users.json",JSON.stringify(users,null,2))
-// app.post("/addUser",(req,res) => {
-//     const usersFile = getFileJson()
+app.post("/users",(req,res) => {
+    usersFile = getFileJson()
     
-//     const newUser = {
-//         id: usersFile.length+1,
-//         FirstName: req.body.FirstName,
-//         LastName: req.body.LastName,
-//         Email: req.body.Email
+    const newUser = {
+        id: usersFile.length+1,
+        FirstName: req.body.FirstName,
+        LastName: req.body.LastName,
+        Email: req.body.Email
 
-//     }
-//     usersFile.push(newUser)
-//     fs.writeFileSync("users.json",JSON.stringify(usersFile,null,2))
-//     res.send("the user is added successfuly")
+    }
+    usersFile.push(newUser)
+    fs.writeFileSync("users.json",JSON.stringify(usersFile,null,2))
+    res.send("the user is added successfuly")
 
-// })
+})
 
 
 
 //method PUT
-app.put("/updateData/:id",(req,res) => {
-    const usersFile = getFileJson()
+app.put("/users/:id",(req,res) => {
+    usersFile = getFileJson()
     
     const user = usersFile.find(u => u.id === parseInt(req.params.id))
     if(!user) res.send("the user was not found")
@@ -90,8 +92,8 @@ app.put("/updateData/:id",(req,res) => {
 })
 
 //method DELETE
-app.delete("/deleteUser/:id",(req,res) =>{
-    const usersFile = getFileJson()
+app.delete("/users/:id",(req,res) =>{
+    usersFile = getFileJson()
        
     const user = usersFile.find(u => u.id === parseInt(req.params.id))
     if(!user) return res.send("the user was not found")
